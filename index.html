@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZX SPORTS - Free Fire Tournament</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Tiro+Bangla&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fire: #FF4500;
+    --gold: #FFD700;
+    --orange: #FF8C00;
+    --dark: #0a0a0f;
+    --dark2: #111118;
+    --card: #16161f;
+    --border: rgba(255,69,0,0.3);
+    --glow: 0 0 20px rgba(255,69,0,0.5);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--dark);
+    color: #fff;
+    font-family: 'Rajdhani', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom Cursor */
+  .cursor {
+    width: 20px; height: 20px;
+    border: 2px solid var(--fire);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s, opacity 0.3s;
+    mix-blend-mode: exclusion;
+  }
+  .cursor-dot {
+    width: 6px; height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* Animated Background */
+  .bg-particles {
+    position: fixed; inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: float linear infinite;
+    opacity: 0.15;
+  }
+  @keyframes float {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    10% { opacity: 0.2; }
+    90% { opacity: 0.1; }
+    100% { transform: translateY(-100px) scale(1); opacity: 0; }
+  }
+
+  /* Noise Texture Overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 40px;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, var(--fire), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+  }
+  .nav-logo span {
+    color: #fff;
+    -webkit-text-fill-color: #fff;
+    font-size: 0.7rem;
+    display: block;
+    letter-spacing: 8px;
+    opacity: 0.6;
+    margin-top: -4px;
+  }
+  nav ul {
+    display: flex; gap: 30px; list-style: none;
+  }
+  nav ul a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  nav ul a:hover { color: var(--fire); }
+
+  .nav-btn {
+    background: linear-gradient(135deg, var(--fire), var(--orange));
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: none;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .nav-btn:hover { box-shadow: var(--glow); transform: translateY(-2px); }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    padding: 120px 20px 60px;
+    z-index: 2;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(255,69,0,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 20% 80%, rgba(255,140,0,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 80% 20%, rgba(255,69,0,0.06) 0%, transparent 60%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,69,0,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,69,0,0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+    perspective: 500px;
+    transform: perspective(500px) rotateX(20deg) scale(1.3);
+    transform-origin: 50% 80%;
+    opacity: 0.5;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(255,69,0,0.15);
+    border: 1px solid var(--border);
+    color: var(--fire);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    padding: 8px 20px;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    margin-bottom: 24px;
+    animation: pulse-badge 2s ease-in-out infinite;
+  }
+  @keyframes pulse-badge {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,69,0,0.3); }
+    50% { box-shadow: 0 0 0 8px rgba(255,69,0,0); }
+  }
+  .hero h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(3rem, 10vw, 7rem);
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 8px;
+    animation: hero-in 1s ease both;
+  }
+  .hero h1 .line1 {
+    background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: block;
+  }
+  .hero h1 .line2 {
+    background: linear-gradient(135deg, var(--fire) 0%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: block;
+    filter: drop-shadow(0 0 30px rgba(255,69,0,0.6));
+  }
+  @keyframes hero-in {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero-sub {
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+    animation: hero-in 1s 0.2s ease both;
+    font-family: 'Tiro Bangla', serif;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+  }
+  .hero-buttons {
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    animation: hero-in 1s 0.4s ease both;
+  }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 12px;
+    background: linear-gradient(135deg, var(--fire), var(--orange));
+    color: #fff;
+    padding: 18px 40px;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-decoration: none;
+    cursor: none;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    transition: all 0.25s;
+    box-shadow: 0 4px 30px rgba(255,69,0,0.4);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 8px 50px rgba(255,69,0,0.7);
+    transform: translateY(-3px) scale(1.03);
+  }
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 12px;
+    background: transparent;
+    color: #fff;
+    padding: 17px 40px;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-decoration: none;
+    cursor: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    transition: all 0.25s;
+  }
+  .btn-secondary:hover {
+    border-color: var(--fire);
+    background: rgba(255,69,0,0.1);
+    transform: translateY(-3px);
+  }
+  .download-icon {
+    width: 20px; height: 20px;
+    display: inline-block;
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    position: relative; z-index: 2;
+    background: rgba(255,69,0,0.08);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex; justify-content: center; gap: 60px; flex-wrap: wrap;
+  }
+  .stat-item {
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 2rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--fire), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: block;
+  }
+  .stat-label {
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    font-family: 'Tiro Bangla', serif;
+  }
+
+  /* SECTIONS */
+  section {
+    position: relative; z-index: 2;
+    padding: 80px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .section-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--fire);
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .section-title span {
+    background: linear-gradient(135deg, var(--fire), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .section-desc {
+    color: rgba(255,255,255,0.55);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    max-width: 550px;
+    font-family: 'Tiro Bangla', serif;
+  }
+
+  /* FEATURES */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 50px;
+  }
+  .feature-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,69,0,0.05), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .feature-card:hover { border-color: var(--fire); transform: translateY(-4px); box-shadow: var(--glow); }
+  .feature-card:hover::before { opacity: 1; }
+  .feature-icon {
+    width: 50px; height: 50px;
+    background: linear-gradient(135deg, var(--fire), var(--orange));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .feature-card h3 {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+  .feature-card p {
+    color: rgba(255,255,255,0.55);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    font-family: 'Tiro Bangla', serif;
+  }
+
+  /* DOWNLOAD SECTION */
+  .download-section {
+    background: linear-gradient(135deg, rgba(255,69,0,0.1), rgba(255,140,0,0.05));
+    border: 1px solid var(--border);
+    border-radius: 0;
+    padding: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    flex-wrap: wrap;
+    position: relative;
+    overflow: hidden;
+    clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
+  }
+  .download-section::before {
+    content: '';
+    position: absolute; right: -40px; top: -40px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,69,0,0.15), transparent 70%);
+    pointer-events: none;
+  }
+  .download-text h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+  .download-text h2 span {
+    background: linear-gradient(135deg, var(--fire), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .download-text p {
+    color: rgba(255,255,255,0.6);
+    font-family: 'Tiro Bangla', serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    max-width: 400px;
+  }
+  .download-buttons {
+    display: flex; flex-direction: column; gap: 12px;
+    min-width: 240px;
+  }
+  .dl-btn {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--dark2);
+    border: 1px solid var(--border);
+    color: #fff;
+    padding: 14px 24px;
+    text-decoration: none;
+    cursor: none;
+    transition: all 0.25s;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .dl-btn:hover {
+    border-color: var(--fire);
+    background: rgba(255,69,0,0.15);
+    box-shadow: var(--glow);
+    transform: translateX(6px);
+  }
+  .dl-btn-icon { font-size: 1.8rem; }
+  .dl-btn-text { text-align: left; }
+  .dl-btn-text small {
+    display: block;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+  }
+  .dl-btn-text strong {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .dl-btn.primary {
+    background: linear-gradient(135deg, var(--fire), var(--orange));
+    border-color: transparent;
+    box-shadow: 0 4px 20px rgba(255,69,0,0.35);
+  }
+  .dl-btn.primary:hover { box-shadow: 0 8px 40px rgba(255,69,0,0.6); }
+
+  /* HOW IT WORKS */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0;
+    margin-top: 50px;
+    position: relative;
+  }
+  .steps::before {
+    content: '';
+    position: absolute;
+    top: 35px; left: 12%; right: 12%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--fire), var(--gold), var(--fire), transparent);
+  }
+  .step {
+    text-align: center;
+    padding: 20px;
+    position: relative;
+  }
+  .step-num {
+    width: 70px; height: 70px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, var(--fire), var(--orange));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Orbitron', monospace;
+    font-size: 1.5rem;
+    font-weight: 900;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    box-shadow: 0 0 30px rgba(255,69,0,0.4);
+  }
+  .step h4 {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .step p {
+    color: rgba(255,255,255,0.55);
+    font-size: 0.9rem;
+    font-family: 'Tiro Bangla', serif;
+    line-height: 1.5;
+  }
+
+  /* TOURNAMENTS */
+  .tournament-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 50px;
+  }
+  .t-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+  }
+  .t-card:hover { border-color: var(--fire); transform: translateY(-6px); box-shadow: 0 20px 50px rgba(255,69,0,0.2); }
+  .t-card-header {
+    background: linear-gradient(135deg, rgba(255,69,0,0.2), rgba(255,140,0,0.1));
+    padding: 20px 24px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .t-card-header h3 {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .t-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    background: var(--fire);
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+  .t-badge.live { background: #00ff88; color: #000; }
+  .t-badge.upcoming { background: var(--gold); color: #000; }
+  .t-card-body { padding: 24px; }
+  .t-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 0.9rem;
+  }
+  .t-row:last-child { border-bottom: none; }
+  .t-row span { color: rgba(255,255,255,0.45); font-family: 'Tiro Bangla', serif; }
+  .t-row strong { font-family: 'Orbitron', monospace; font-size: 0.85rem; }
+  .prize { color: var(--gold) !important; }
+  .t-join {
+    display: block;
+    margin: 20px 24px 24px;
+    text-align: center;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--fire), var(--orange));
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: none;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: all 0.2s;
+  }
+  .t-join:hover { box-shadow: var(--glow); transform: scale(1.02); }
+
+  /* FOOTER */
+  footer {
+    position: relative; z-index: 2;
+    background: var(--dark2);
+    border-top: 1px solid var(--border);
+    padding: 50px 40px 30px;
+    text-align: center;
+  }
+  .footer-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 2rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--fire), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 16px;
+  }
+  .footer-links {
+    display: flex; justify-content: center; gap: 30px;
+    margin-bottom: 30px; flex-wrap: wrap;
+  }
+  .footer-links a {
+    color: rgba(255,255,255,0.5);
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--fire); }
+  .footer-copy {
+    color: rgba(255,255,255,0.25);
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+  }
+  .social-links {
+    display: flex; justify-content: center; gap: 16px; margin-bottom: 24px;
+  }
+  .social-link {
+    width: 40px; height: 40px;
+    background: rgba(255,69,0,0.1);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: none;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: all 0.2s;
+  }
+  .social-link:hover { background: var(--fire); border-color: var(--fire); box-shadow: var(--glow); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--dark); }
+  ::-webkit-scrollbar-thumb { background: var(--fire); }
+
+  /* DIVIDER */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0;
+  }
+
+  /* SUPPORT SECTION */
+  .support-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 50px;
+  }
+  .support-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+  }
+  .support-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(255,69,0,0.2); border-color: var(--fire); }
+  .support-card-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  .support-icon-wrap {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, var(--fire), var(--orange));
+    display: flex; align-items: center; justify-content: center;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    box-shadow: 0 0 30px rgba(255,69,0,0.4);
+  }
+  .tg-icon-wrap {
+    background: linear-gradient(135deg, #0088cc, #00aaff);
+    box-shadow: 0 0 30px rgba(0,136,204,0.4);
+  }
+  .support-big-icon { font-size: 1.8rem; }
+  .support-badge-live {
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; padding: 5px 12px;
+    background: rgba(0,255,136,0.15); color: #00ff88;
+    border: 1px solid rgba(0,255,136,0.3);
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+    white-space: nowrap;
+  }
+  .support-badge-members {
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; padding: 5px 12px;
+    background: rgba(0,136,204,0.15); color: #00aaff;
+    border: 1px solid rgba(0,136,204,0.3);
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+    white-space: nowrap;
+  }
+  .support-card h3 {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.1rem; font-weight: 700;
+    letter-spacing: 1px; margin-bottom: 12px;
+  }
+  .support-card p {
+    color: rgba(255,255,255,0.55);
+    font-family: 'Tiro Bangla', serif;
+    font-size: 0.95rem; line-height: 1.7;
+    margin-bottom: 20px;
+  }
+  .support-info-rows { margin-bottom: 24px; }
+  .support-info-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 0.88rem;
+  }
+  .support-info-row:last-child { border-bottom: none; }
+  .support-info-row span { color: rgba(255,255,255,0.45); font-family: 'Tiro Bangla', serif; }
+  .support-info-row strong { font-family: 'Orbitron', monospace; font-size: 0.8rem; }
+  .support-btn {
+    display: block; text-align: center;
+    padding: 14px 20px;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 2px; text-decoration: none;
+    cursor: none; transition: all 0.25s;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .admin-btn {
+    background: linear-gradient(135deg, var(--fire), var(--orange));
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(255,69,0,0.35);
+  }
+  .admin-btn:hover { box-shadow: 0 8px 40px rgba(255,69,0,0.6); transform: scale(1.02); }
+  .telegram-btn {
+    background: linear-gradient(135deg, #0088cc, #00aaff);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(0,136,204,0.35);
+  }
+  .telegram-btn:hover { box-shadow: 0 8px 40px rgba(0,136,204,0.6); transform: scale(1.02); }
+  .telegram-card { border-color: rgba(0,136,204,0.3); }
+  .telegram-card:hover { border-color: #0088cc; box-shadow: 0 20px 50px rgba(0,136,204,0.2); }
+
+  /* Support CTA Strip */
+  .support-cta-strip {
+    margin-top: 30px;
+    background: linear-gradient(135deg, rgba(255,69,0,0.08), rgba(0,136,204,0.08));
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 20px 32px;
+    display: flex; align-items: center; justify-content: space-between; gap: 20px;
+    flex-wrap: wrap;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+  }
+  .support-cta-text {
+    display: flex; align-items: center; gap: 12px;
+    color: rgba(255,255,255,0.7);
+    font-family: 'Tiro Bangla', serif;
+    font-size: 1rem;
+  }
+  .support-cta-strip .support-btn { margin: 0; display: inline-block; }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    nav { padding: 14px 20px; }
+    nav ul { display: none; }
+    section { padding: 60px 20px; }
+    .download-section { padding: 40px 24px; }
+    .steps::before { display: none; }
+    .stats-bar { gap: 30px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<!-- Particles -->
+<div class="bg-particles" id="particles"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    ZX SPORTS
+    <span>BATTLEGROUND</span>
+  </div>
+  <ul>
+    <li><a href="#features">ফিচার</a></li>
+    <li><a href="#support">সাপোর্ট</a></li>
+    <li><a href="#how">কিভাবে</a></li>
+    <li><a href="#download">ডাউনলোড</a></li>
+  </ul>
+  <a href="#download" class="nav-btn">APP DOWNLOAD</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div style="position:relative; z-index:2">
+    <div class="hero-badge">🔥 Bangladesh's #1 Free Fire Tournament Platform</div>
+    <h1>
+      <span class="line1">ZX SPORTS</span>
+      <span class="line2">TOURNAMENT</span>
+    </h1>
+    <p class="hero-sub">বাংলাদেশের সেরা ফ্রি ফায়ার টুর্নামেন্ট অ্যাপ — এখনই ডাউনলোড করুন</p>
+    <div class="hero-buttons">
+      <a href="#download" class="btn-primary">
+        <svg class="download-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        APP DOWNLOAD
+      </a>
+      <a href="#support" class="btn-secondary">
+        💬 SUPPORT & TELEGRAM
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <span class="stat-num">50K+</span>
+    <span class="stat-label">মোট খেলোয়াড়</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">৳2L+</span>
+    <span class="stat-label">মোট পুরস্কার</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">500+</span>
+    <span class="stat-label">টুর্নামেন্ট</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">24/7</span>
+    <span class="stat-label">লাইভ সাপোর্ট</span>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-tag">// KEY FEATURES</div>
+  <h2 class="section-title">কেন ZX SPORTS <span>বেছে নেবেন?</span></h2>
+  <p class="section-desc">বাংলাদেশের সবচেয়ে বিশ্বস্ত এবং প্রফেশনাল ফ্রি ফায়ার টুর্নামেন্ট প্ল্যাটফর্ম।</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🏆</div>
+      <h3>DAILY TOURNAMENT</h3>
+      <p>প্রতিদিন নতুন টুর্নামেন্ট। Solo, Duo এবং Squad সব ফরম্যাটে অংশ নিন।</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💰</div>
+      <h3>INSTANT PAYMENT</h3>
+      <p>জেতার সাথে সাথে bKash, Nagad ও Rocket-এ তাৎক্ষণিক পেমেন্ট পান।</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔒</div>
+      <h3>ANTI-CHEAT SYSTEM</h3>
+      <p>উন্নত অ্যান্টি-চিট সিস্টেম দিয়ে সম্পূর্ণ ফেয়ার গেমপ্লে নিশ্চিত।</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>LIVE STATS</h3>
+      <p>রিয়েল-টাইম স্কোরবোর্ড, কিল ট্র্যাকিং এবং লাইভ ম্যাচ আপডেট।</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">👥</div>
+      <h3>SQUAD FINDER</h3>
+      <p>নিজের স্কোয়াড তৈরি করুন বা নতুন টিমমেট খুঁজে নিন সহজেই।</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎯</div>
+      <h3>SKILL RANKING</h3>
+      <p>নিজের র‌্যাংকিং দেখুন এবং বাংলাদেশের টপ প্লেয়ারদের সাথে লড়াই করুন।</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SUPPORT & TELEGRAM -->
+<section id="support">
+  <div class="section-tag">// CONTACT & COMMUNITY</div>
+  <h2 class="section-title">সাপোর্ট ও <span>কমিউনিটি</span></h2>
+  <p class="section-desc">যেকোনো সমস্যায় আমাদের অ্যাডমিন টিম সর্বদা প্রস্তুত। Telegram চ্যানেলে যোগ দিন এবং সর্বশেষ আপডেট পান।</p>
+  <div class="support-grid">
+
+    <!-- Admin Support Card -->
+    <div class="support-card admin-card">
+      <div class="support-card-top">
+        <div class="support-icon-wrap">
+          <span class="support-big-icon">🛡️</span>
+        </div>
+        <div class="support-badge-live">● LIVE SUPPORT</div>
+      </div>
+      <h3>ADMIN SUPPORT</h3>
+      <p>আমাদের অ্যাডমিন টিম ২৪/৭ অনলাইনে আছে। পেমেন্ট, রেজিস্ট্রেশন বা যেকোনো সমস্যায় সরাসরি যোগাযোগ করুন।</p>
+      <div class="support-info-rows">
+        <div class="support-info-row"><span>⚡ রেসপন্স টাইম</span><strong>~5 মিনিট</strong></div>
+        <div class="support-info-row"><span>🕐 সাপোর্ট সময়</span><strong>২৪/৭</strong></div>
+        <div class="support-info-row"><span>🌐 ভাষা</span><strong>বাংলা / English</strong></div>
+      </div>
+      <a href="https://t.me/Your_dad_009" class="support-btn admin-btn">
+        💬 ADMIN-এ মেসেজ করুন →
+      </a>
+    </div>
+
+    <!-- Telegram Card -->
+    <div class="support-card telegram-card">
+      <div class="support-card-top">
+        <div class="support-icon-wrap tg-icon-wrap">
+          <span class="support-big-icon">✈️</span>
+        </div>
+        <div class="support-badge-members">👥 10K+ MEMBERS</div>
+      </div>
+      <h3>TELEGRAM CHANNEL</h3>
+      <p>আমাদের অফিশিয়াল Telegram চ্যানেলে যোগ দিন। টুর্নামেন্ট নোটিফিকেশন, রুম কোড ও বিশেষ অফার সবার আগে পান।</p>
+      <div class="support-info-rows">
+        <div class="support-info-row"><span>🏆 টুর্নামেন্ট আপডেট</span><strong>রিয়েলটাইম</strong></div>
+        <div class="support-info-row"><span>🔑 রুম কোড</span><strong>সরাসরি চ্যানেলে</strong></div>
+        <div class="support-info-row"><span>🎁 এক্সক্লুসিভ অফার</strong></div>
+      </div>
+      <a href="https://t.me/zx_sprts" class="support-btn telegram-btn">
+        ✈️ TELEGRAM-এ JOIN করুন →
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Bottom CTA Strip -->
+  <div class="support-cta-strip">
+    <div class="support-cta-text">
+      <span>🔥</span>
+      <span>আমাদের কমিউনিটিতে যোগ দিন — বাংলাদেশের সেরা Free Fire খেলোয়াড়দের সাথে!</span>
+    </div>
+    <a href="#" class="support-btn telegram-btn" style="white-space:nowrap; flex-shrink:0;">JOIN NOW →</a>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-tag">// HOW IT WORKS</div>
+  <h2 class="section-title">মাত্র <span>৪টি ধাপে</span> শুরু করুন</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h4>DOWNLOAD</h4>
+      <p>নিচের লিংক থেকে ZX SPORTS অ্যাপটি ডাউনলোড করুন</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h4>REGISTER</h4>
+      <p>ফোন নম্বর দিয়ে দ্রুত রেজিস্ট্রেশন করুন</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h4>JOIN</h4>
+      <p>পছন্দের টুর্নামেন্টে রেজিস্ট্রেশন করুন ও খেলুন</p>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <h4>WIN & EARN</h4>
+      <p>জিতুন এবং সরাসরি আপনার মোবাইলে পেমেন্ট নিন</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- DOWNLOAD -->
+<section id="download">
+  <div class="download-section">
+    <div class="download-text">
+      <div class="section-tag">// APP DOWNLOAD</div>
+      <h2>এখনই ডাউনলোড করুন <span>ZX SPORTS</span></h2>
+      <p>Android ও iOS উভয় ডিভাইসে উপলব্ধ। সম্পূর্ণ বিনামূল্যে ডাউনলোড করুন এবং আজই টুর্নামেন্টে যোগ দিন।</p>
+      <br>
+      <p style="font-size:0.8rem; color:rgba(255,255,255,0.35); letter-spacing:2px; text-transform:uppercase; font-family:'Orbitron',monospace;">
+        ✓ FREE DOWNLOAD &nbsp;&nbsp; ✓ NO ADS &nbsp;&nbsp; ✓ SECURE
+      </p>
+    </div>
+    <div class="download-buttons">
+      <a href="ZX SPORTS.apk" class="dl-btn primary">
+        <span class="dl-btn-icon">🤖</span>
+        <span class="dl-btn-text">
+          <small>Download for</small>
+          <strong>ANDROID APK</strong>
+        </span>
+      </a>
+      <a href="#" class="dl-btn">
+        <span class="dl-btn-icon">🍎</span>
+        <span class="dl-btn-text">
+          <small>Download on</small>
+          <strong>APP STORE (iOS)</strong>
+        </span>
+      </a>
+      <a href="#" class="dl-btn">
+        <span class="dl-btn-icon">▶️</span>
+        <span class="dl-btn-text">
+          <small>Get it on</small>
+          <strong>GOOGLE PLAY</strong>
+        </span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">ZX SPORTS</div>
+  <div class="social-links">
+    <a href="#" class="social-link">📘</a>
+    <a href="#" class="social-link">📸</a>
+    <a href="#" class="social-link">▶️</a>
+    <a href="#" class="social-link">💬</a>
+  </div>
+  <div class="footer-links">
+    <a href="#">হোম</a>
+    <a href="#support">অ্যাডমিন সাপোর্ট</a>
+    <a href="#support">Telegram</a>
+    <a href="#">লিডারবোর্ড</a>
+    <a href="#">প্রাইভেসি পলিসি</a>
+    <a href="#">যোগাযোগ</a>
+  </div>
+  <p class="footer-copy">© 2025 ZX SPORTS. ALL RIGHTS RESERVED. BANGLADESH 🇧🇩</p>
+</footer>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const dot = document.getElementById('cursorDot');
+  let mx = 0, my = 0, cx = 0, cy = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  function animateCursor() {
+    cx += (mx - cx) * 0.12;
+    cy += (my - cy) * 0.12;
+    cursor.style.left = (cx - 10) + 'px';
+    cursor.style.top = (cy - 10) + 'px';
+    dot.style.left = (mx - 3) + 'px';
+    dot.style.top = (my - 3) + 'px';
+    requestAnimationFrame(animateCursor);
+  }
+  animateCursor();
+  document.querySelectorAll('a, button, .feature-card, .t-card').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.style.transform = 'scale(2)');
+    el.addEventListener('mouseleave', () => cursor.style.transform = 'scale(1)');
+  });
+
+  // Particles
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 4 + 1;
+    const hue = Math.random() > 0.5 ? 'rgba(255,69,0,0.4)' : 'rgba(255,215,0,0.3)';
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      background:${hue};
+      left:${Math.random()*100}%;
+      animation-duration:${Math.random()*15+8}s;
+      animation-delay:${Math.random()*10}s;
+    `;
+    container.appendChild(p);
+  }
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // Counter animation
+  function animateCounters() {
+    document.querySelectorAll('.stat-num').forEach(el => {
+      el.style.opacity = '1';
+    });
+  }
+  setTimeout(animateCounters, 500);
+
+  // Intersection Observer for cards
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        entry.target.style.animationDelay = (i * 0.1) + 's';
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.feature-card, .t-card, .step').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(30px)';
+    el.style.transition = 'all 0.6s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
